@@ -119,6 +119,27 @@ export default function PlayPage() {
     sessionStorage.setItem('players', JSON.stringify(newPlayers));
   };
 
+  const handleRandomCard = () => {
+    // Obtener cartas no volteadas
+    const unflippedCards = cards.filter(card => !flippedCards.has(card.id));
+    
+    if (unflippedCards.length === 0) {
+      alert('¡Todas las cartas ya han sido volteadas!');
+      return;
+    }
+
+    // Seleccionar una carta aleatoria
+    const randomCard = unflippedCards[Math.floor(Math.random() * unflippedCards.length)];
+    
+    // Voltearla
+    setFlippedCards(new Set([...flippedCards, randomCard.id]));
+    
+    // Pasar al siguiente jugador después de la animación
+    setTimeout(() => {
+      setCurrentPlayerIndex((prev) => (prev + 1) % players.length);
+    }, 600);
+  };
+
   const currentPlayer = players[currentPlayerIndex];
 
   return (
@@ -200,22 +221,37 @@ export default function PlayPage() {
         </div>
 
         {/* Controles de tamaño */}
-        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 mb-6 border-2 border-pink-400/50 flex items-center justify-center gap-4">
-          <span className="text-white font-semibold">Tamaño de cartas:</span>
+        <div className="bg-white/10 backdrop-blur-md rounded-xl p-4 mb-6 border-2 border-pink-400/50 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <span className="text-white font-semibold">Tamaño:</span>
+            <button
+              onClick={decreaseSize}
+              className="bg-pink-500 hover:bg-pink-600 text-white font-bold w-10 h-10 rounded-lg transition-all flex items-center justify-center text-2xl"
+            >
+              −
+            </button>
+            <span className="text-pink-300 font-mono font-bold min-w-[60px] text-center">
+              {cardSize}px
+            </span>
+            <button
+              onClick={increaseSize}
+              className="bg-pink-500 hover:bg-pink-600 text-white font-bold w-10 h-10 rounded-lg transition-all flex items-center justify-center text-2xl"
+            >
+              +
+            </button>
+          </div>
+
+          {/* Botón carta aleatoria */}
           <button
-            onClick={decreaseSize}
-            className="bg-pink-500 hover:bg-pink-600 text-white font-bold w-10 h-10 rounded-lg transition-all flex items-center justify-center text-2xl"
+            onClick={handleRandomCard}
+            disabled={flippedCards.size === cards.length}
+            className={`flex items-center gap-2 font-bold py-3 px-6 rounded-xl transition-all ${
+              flippedCards.size === cards.length
+                ? 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                : 'bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:scale-105 shadow-lg hover:shadow-yellow-500/50'
+            }`}
           >
-            −
-          </button>
-          <span className="text-pink-300 font-mono font-bold min-w-[60px] text-center">
-            {cardSize}px
-          </span>
-          <button
-            onClick={increaseSize}
-            className="bg-pink-500 hover:bg-pink-600 text-white font-bold w-10 h-10 rounded-lg transition-all flex items-center justify-center text-2xl"
-          >
-            +
+            🎲 Carta Aleatoria
           </button>
         </div>
 
